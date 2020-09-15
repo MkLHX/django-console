@@ -1,4 +1,4 @@
-from django.conf.urls import patterns
+from django.urls import path
 from django.contrib import admin
 from django.core.context_processors import csrf
 from django.http import HttpResponse
@@ -37,8 +37,8 @@ def console(request):
         v2 = get_client_ip(request) in settings.CONSOLE_WHITELIST
     except AttributeError:
         v2 = True
-    except:
-        print("CONSOLE_WHITELIST needs to be a list of ip addresses to be allowed access")
+    except Exception as e:
+        print("CONSOLE_WHITELIST needs to be a list of ip addresses to be allowed access {}".format(e))
         v2 = True
     settings_variables = v1 and v2
     if request.user.is_superuser and settings_variables:
@@ -75,9 +75,10 @@ def get_admin_urls(urls):
     Appends the console and post urls to the url patterns
     """
     def get_urls():
-        my_urls = patterns('',
-                           (r'^console/$', admin.site.admin_view(console)),
-                           (r'^console/post/$', admin.site.admin_view(console_post)))
+        my_urls = path('',
+                       (r'^console/$', admin.site.admin_view(console)),
+                       (r'^console/post/$', admin.site.admin_view(console_post))
+                       )
         return my_urls + urls
 
     return get_urls
